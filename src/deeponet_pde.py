@@ -156,7 +156,7 @@ def run(problem, system, space, T, m, nn, net, lr, epochs, num_train, num_test):
     X_test_trim = trim_to_65535(X_test)[0]
     y_test_trim = trim_to_65535(y_test)[0]
     if nn == "opnn":
-        data = dde.data.OpDataSet(
+        data = dde.data.Triple(
             X_train=X_train, y_train=y_train, X_test=X_test_trim, y_test=y_test_trim
         )
     else:
@@ -265,7 +265,7 @@ def main():
     initializer = "Glorot normal"  # "He normal" or "Glorot normal"
     dim_x = 1 if problem in ["ode", "lt"] else 2
     if nn == "opnn":
-        net = dde.maps.OpNN(
+        net = dde.maps.DeepONet(
             [m, 40, 40],
             [dim_x, 40, 40],
             activation,

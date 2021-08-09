@@ -16,7 +16,7 @@ def run(m, net, lr, epochs):
 
     X_test_trim = trim_to_65535(X_test)[0]
     y_test_trim = trim_to_65535(y_test)[0]
-    data = dde.data.OpDataSet(
+    data = dde.data.Triple(
         X_train=X_train, y_train=y_train, X_test=X_test_trim, y_test=y_test_trim
     )
 
@@ -47,7 +47,7 @@ def main():
     epochs = 20000
     dim_x = 1
     lr = 0.001
-    net = dde.maps.OpNN(
+    net = dde.maps.DeepONet(
         [m, 100, 100],
         [dim_x, 100, 100],
         "relu",
