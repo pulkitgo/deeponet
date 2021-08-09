@@ -138,20 +138,20 @@ def advd_system(T, npoints_output):
 def run(problem, system, space, T, m, nn, net, lr, epochs, num_train, num_test):
     # space_test = GRF(1, length_scale=0.1, N=1000, interp="cubic")
 
-    X_train, y_train = system.gen_operator_data(space, m, num_train)
-    X_test, y_test = system.gen_operator_data(space, m, num_test)
-    if nn != "opnn":
-        X_train = merge_values(X_train)
-        X_test = merge_values(X_test)
+    # X_train, y_train = system.gen_operator_data(space, m, num_train)
+    # X_test, y_test = system.gen_operator_data(space, m, num_test)
+    # if nn != "opnn":
+    #     X_train = merge_values(X_train)
+    #     X_test = merge_values(X_test)
 
     # np.savez_compressed("train.npz", X_train0=X_train[0], X_train1=X_train[1], y_train=y_train)
     # np.savez_compressed("test.npz", X_test0=X_test[0], X_test1=X_test[1], y_test=y_test)
     # return
 
-    # d = np.load("train.npz")
-    # X_train, y_train = (d["X_train0"], d["X_train1"]), d["y_train"]
-    # d = np.load("test.npz")
-    # X_test, y_test = (d["X_test0"], d["X_test1"]), d["y_test"]
+    d = np.load("train.npz")
+    X_train, y_train = (d["X_train0"], d["X_train1"]), d["y_train"]
+    d = np.load("test.npz")
+    X_test, y_test = (d["X_test0"], d["X_test1"]), d["y_test"]
 
     X_test_trim = trim_to_65535(X_test)[0]
     y_test_trim = trim_to_65535(y_test)[0]
@@ -170,7 +170,7 @@ def run(problem, system, space, T, m, nn, net, lr, epochs, num_train, num_test):
         "model/model.ckpt", save_better_only=True, period=1000
     )
     losshistory, train_state = model.train(epochs=epochs, callbacks=[checker])
-    print("# Parameters:", np.sum([np.prod(v.get_shape().as_list()) for v in tf.trainable_variables()]))
+    print("# Parameters:", np.sum([np.prod(v.get_shape().as_list()) for v in tf.compat.v1.trainable_variables()]))
     dde.saveplot(losshistory, train_state, issave=True, isplot=True)
 
     model.restore("model/model.ckpt-" + str(train_state.best_step), verbose=1)
@@ -255,7 +255,7 @@ def main():
     # Hyperparameters
     m = 100
     num_train = 10000
-    num_test = 100000
+    num_test = 10000
     lr = 0.001
     epochs = 50000
 
