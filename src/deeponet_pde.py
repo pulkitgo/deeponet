@@ -99,15 +99,15 @@ def ode_system(T):
 
     def g(s, u, x):
         # Antiderivative
-        return u
+        # return u
         # Nonlinear ODE
         # return -s**2 + u
         # Gravity pendulum
-        # k = 1
-        # return [s[1], - k * np.sin(s[0]) + u]
+        k = 1
+        return [s[1], - k * np.sin(s[0]) + u]
 
-    s0 = [0]
-    # s0 = [0, 0]  # Gravity pendulum
+    # s0 = [0]
+    s0 = [0, 0]  # Gravity pendulum
     return ODESystem(g, s0, T)
 
 
