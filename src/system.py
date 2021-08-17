@@ -69,6 +69,7 @@ class ODESystem(object):
         y = self.eval_s_space(space, features, x)
         return [sensor_values, x], y
 
+    #x.shape = (10000,1); sensor_values.shape = (10000,100), y.shape=(10000,1)
     def eval_s_space(self, space, features, x):
         """For a list of functions in `space` represented by `features`
         and a list `x`, compute the corresponding list of outputs.
