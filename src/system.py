@@ -68,6 +68,8 @@ class ODESystem(object):
         x = self.T * np.random.rand(num)[:, None]
         y = self.eval_s_space(space, features, x)
         return [sensor_values, x], y
+    #sensor_values is the input to branch net, x is the input to trunk net and y is the final output.
+    
     #x  is the input domain points, y is the outputs, and sensor_values are for the m sensor point evaluations. 
     #x.shape = (10000,1); sensor_values.shape = (10000,100), y.shape=(10000,1)
     def eval_s_space(self, space, features, x):
