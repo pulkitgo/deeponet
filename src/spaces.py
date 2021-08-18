@@ -37,6 +37,7 @@ class FiniteChebyshev:
 
     def random(self, n):
         return 2 * self.M * np.random.rand(n, self.N) - self.M
+        #Return a 10000 x 100 matrix in [-M, M].
 
     def eval_u_one(self, a, x):
         return np.polynomial.chebyshev.chebval(2 * x - 1, a)
