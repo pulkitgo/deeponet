@@ -148,9 +148,9 @@ def run(problem, system, space, T, m, nn, net, lr, epochs, num_train, num_test):
     # np.savez_compressed("test.npz", X_test0=X_test[0], X_test1=X_test[1], y_test=y_test)
     # return
 
-    d = np.load("train.npz")
+    d = np.load("/content/deeponet/results/train.npz")
     X_train, y_train = (d["X_train0"], d["X_train1"]), d["y_train"]
-    d = np.load("test.npz")
+    d = np.load("/content/deeponet/results/test.npz")
     X_test, y_test = (d["X_test0"], d["X_test1"]), d["y_test"]
 
     X_test_trim = trim_to_65535(X_test)[0]
