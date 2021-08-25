@@ -144,8 +144,8 @@ def run(problem, system, space, T, m, nn, net, lr, epochs, num_train, num_test):
     #     X_train = merge_values(X_train)
     #     X_test = merge_values(X_test)
 
-    # np.savez_compressed("train.npz", X_train0=X_train[0], X_train1=X_train[1], y_train=y_train)
-    # np.savez_compressed("test.npz", X_test0=X_test[0], X_test1=X_test[1], y_test=y_test)
+    # np.savez_compressed("/content/deeponet/results/train.npz", X_train0=X_train[0], X_train1=X_train[1], y_train=y_train)
+    # np.savez_compressed("/content/deeponet/results/test.npz", X_test0=X_test[0], X_test1=X_test[1], y_test=y_test)
     # return
 
     d = np.load("/content/deeponet/results/train.npz")
@@ -165,13 +165,13 @@ def run(problem, system, space, T, m, nn, net, lr, epochs, num_train, num_test):
         )
 
     model = dde.Model(data, net)
-    model.compile("adam", lr=lr, metrics=[mean_squared_error_outlier])
+    model.compile("adam", lr=lr)#, metrics=[mean_squared_error_outlier])
     checker = dde.callbacks.ModelCheckpoint(
         "model/model.ckpt", save_better_only=True, period=1000
     )
-    losshistory, train_state = model.train(epochs=epochs, callbacks=[checker])
+    losshistory, train_state = model.train(epochs=epochs, callbacks=[checker])#, batch_size=batch_size)
     print("# Parameters:", np.sum([np.prod(v.get_shape().as_list()) for v in tf.compat.v1.trainable_variables()]))
-    dde.saveplot(losshistory, train_state, issave=True, isplot=True)
+    dde.saveplot(losshistory, train_state, issave=True, isplot=True, output_dir='results')
 
     model.restore("model/model.ckpt-" + str(train_state.best_step), verbose=1)
     safe_test(model, data, X_test, y_test)
@@ -247,9 +247,9 @@ def main():
 
     # Function space
     # space = FinitePowerSeries(N=100, M=1)
-    # space = FiniteChebyshev(N=20, M=1)
+    space = FiniteChebyshev(N=20, M=1)
     # space = GRF(2, length_scale=0.2, N=2000, interp="cubic")  # "lt"
-    space = GRF(1, length_scale=0.2, N=1000, interp="cubic")
+    # space = GRF(1, length_scale=0.2, N=1000, interp="cubic")
     # space = GRF(T, length_scale=0.2, N=1000 * T, interp="cubic")
 
     # Hyperparameters
@@ -258,7 +258,7 @@ def main():
     num_test = 10000
     lr = 0.001
     epochs = 50000
-
+    # batch_size = 1
     # Network
     nn = "opnn"
     activation = "relu"
@@ -266,8 +266,8 @@ def main():
     dim_x = 1 if problem in ["ode", "lt"] else 2
     if nn == "opnn":
         net = dde.maps.DeepONet(
-            [m, 40, 40],
-            [dim_x, 40, 40],
+            [m, 40],
+            [dim_x, 40],
             activation,
             initializer,
             use_bias=True,
