@@ -145,13 +145,13 @@ def run(problem, system, space, T, m, nn, net, lr, epochs, num_train, num_test,l
     # #     X_train = merge_values(X_train)
     # #     X_test = merge_values(X_test)
 
-    # np.savez_compressed("/content/deeponet/data_100k/train.npz", X_train0=X_train[0], X_train1=X_train[1], y_train=y_train)
-    # np.savez_compressed("/content/deeponet/data_100k/test.npz", X_test0=X_test[0], X_test1=X_test[1], y_test=y_test)
+    # np.savez_compressed("/content/deeponet/data_20k/train.npz", X_train0=X_train[0], X_train1=X_train[1], y_train=y_train)
+    # np.savez_compressed("/content/deeponet/data_20k/test.npz", X_test0=X_test[0], X_test1=X_test[1], y_test=y_test)
     # return
 
-    d = np.load("/content/deeponet/data_100k/train.npz")
+    d = np.load("/content/deeponet/data_20k/train.npz")
     X_train, y_train = (d["X_train0"], d["X_train1"]), d["y_train"]
-    d = np.load("/content/deeponet/data_100k/test.npz")
+    d = np.load("/content/deeponet/data_20k/test.npz")
     X_test, y_test = (d["X_test0"], d["X_test1"]), d["y_test"]
 
     X_test_trim = trim_to_65535(X_test)[0]
@@ -173,8 +173,8 @@ def run(problem, system, space, T, m, nn, net, lr, epochs, num_train, num_test,l
     losshistory, train_state = model.train(epochs=epochs, callbacks=[checker])      #, batch_size=batch_size)
     # print("Self extracted train {} and test {}".format(train_state.loss_train, train_state.loss_test))
     
-    train_losses.append(train_state.loss_train)
-    test_losses.append(train_state.loss_test)
+    train_losses.append(train_state.loss_train[0])
+    test_losses.append(train_state.loss_test[0])
 
     print("# Parameters:", np.sum([np.prod(v.get_shape().as_list()) for v in tf.compat.v1.trainable_variables()]))
     dde.saveplot(
@@ -266,8 +266,8 @@ def main():
 
     # Hyperparameters
     m = 100
-    num_train = 100000
-    num_test = 10000
+    num_train = 20000
+    num_test = 4000
     lr = 0.001
     epochs = 50000
     # batch_size = 1
@@ -313,15 +313,16 @@ def main():
         run(problem, system, space, T, m, nn, net, lr, epochs, num_train, num_test,
                 layer_count,train_losses,test_losses)#, best_train, best_test)
         
-        plt.plot(train_losses)
-        plt.savefig('/content/deeponet/all_results/train_final.png')
+        print(train_losses)
         plt.clf()
+        plt.plot(np.array(train_losses))
+        plt.savefig('/content/deeponet/all_results/train_final.png')
         
+        plt.clf()
         plt.plot(test_losses)
         plt.savefig('/content/deeponet/all_results/test_final.png')
-        plt.clf()
 
-        clear_output(wait=True)
+        # clear_output(wait=True)
 
 if __name__ == "__main__":
     main()
