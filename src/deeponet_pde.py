@@ -4,6 +4,7 @@ from __future__ import print_function
 from IPython.display import clear_output
 import itertools
 
+import os
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
@@ -297,6 +298,9 @@ def main():
     best_train = []
     best_test = []
 
+    if not os.path.isdir("/content/deeponet/all_results"):
+      os.mkdir("/content/deeponet/all_results")
+
     for layer_count in range(1, 31):
         branch_sizes.append(40)     #+= [40 for i in range(0,layer_count)]
         trunk_sizes.append(40)      #+= [40 for i in range(0,layer_count)]
@@ -322,6 +326,9 @@ def main():
         plt.plot(test_losses)
         plt.savefig('/content/deeponet/all_results/test_final.png')
 
+        tf.compat.v1.reset_default_graph()
+        tf.keras.backend.clear_session()
+        del net
         # clear_output(wait=True)
 
 if __name__ == "__main__":
