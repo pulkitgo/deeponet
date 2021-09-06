@@ -291,20 +291,19 @@ def main():
     # elif nn == "resnet":
     #     net = dde.maps.ResNet(m + dim_x, 1, 128, 2, activation, initializer)
 
-    branch_sizes = [m]
-    trunk_sizes = [dim_x]
     train_losses = []
     test_losses = []
-    best_train = []
-    best_test = []
-
+    
     if not os.path.isdir("/content/deeponet/all_results"):
       os.mkdir("/content/deeponet/all_results")
 
-    for layer_count in range(1, 31):
-        branch_sizes.append(40)     #+= [40 for i in range(0,layer_count)]
-        trunk_sizes.append(40)      #+= [40 for i in range(0,layer_count)]
-        
+    for layer_width in range(5, 105, 5):
+        branch_sizes = [m]
+        trunk_sizes = [dim_x]
+
+        branch_sizes = [layer_width for i in range(4)]     
+        trunk_sizes = [layer_width for i in range(4)]     
+               
         net = dde.maps.DeepONet(
             branch_sizes,
             trunk_sizes,
@@ -315,9 +314,10 @@ def main():
         )
 
         run(problem, system, space, T, m, nn, net, lr, epochs, num_train, num_test,
-                layer_count,train_losses,test_losses)#, best_train, best_test)
+                layer_width,train_losses,test_losses)#, best_train, best_test)
         
         print(train_losses)
+        
         plt.clf()
         plt.plot(np.array(train_losses))
         plt.savefig('/content/deeponet/all_results/train_final.png')
