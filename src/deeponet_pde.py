@@ -298,12 +298,9 @@ def main():
       os.mkdir("/content/deeponet/all_results")
 
     for layer_width in range(5, 105, 5):
-        branch_sizes = [m]
-        trunk_sizes = [dim_x]
-
-        branch_sizes = [layer_width for i in range(4)]     
-        trunk_sizes = [layer_width for i in range(4)]     
-               
+        branch_sizes = [m, layer_width, layer_width, layer_width, layer_width]
+        trunk_sizes = [dim_x, layer_width, layer_width, layer_width, layer_width]
+       
         net = dde.maps.DeepONet(
             branch_sizes,
             trunk_sizes,
@@ -314,7 +311,7 @@ def main():
         )
 
         run(problem, system, space, T, m, nn, net, lr, epochs, num_train, num_test,
-                layer_width,train_losses,test_losses)#, best_train, best_test)
+                layer_width,train_losses,test_losses)
         
         print(train_losses)
         
