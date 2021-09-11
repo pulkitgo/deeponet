@@ -45,6 +45,21 @@ class FiniteChebyshev:
     def eval_u(self, a, sensors):
         return np.polynomial.chebyshev.chebval(2 * np.ravel(sensors) - 1, a.T)
 
+# class ChebyCos:
+#     def __init__(self, N=1, M=1):
+#         self.N = N
+#         self.M = M
+
+#     def random(self, n):
+#         return 2 * self.M * np.random.rand(n, self.N) - self.M
+#         #Return a 10000 x 100 matrix in [-M, M].
+
+#     def eval_u_one(self, a, x):
+#         return np.polynomial.chebyshev.chebval(2 * x - 1, a)
+
+#     def eval_u(self, a, sensors):
+#         return np.polynomial.chebyshev.chebval(2 * np.ravel(sensors) - 1, a.T)
+    
 
 class GRF(object):
     def __init__(self, T, kernel="RBF", length_scale=1, N=1000, interp="cubic"):
