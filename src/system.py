@@ -54,10 +54,12 @@ class LTSystem(object):
 
 
 class ODESystem(object):
-    def __init__(self, g, s0, T):
+    def __init__(self, g, s0, T, step_T, solver="RK45"):
         self.g = g
         self.s0 = s0
         self.T = T
+        self.step_T = step_T
+        self.solver = solver
 
     @timing
     def gen_operator_data(self, space, m, num):
@@ -97,7 +99,7 @@ class ODESystem(object):
         def f(t, y):
             return self.g(y, u(t), t)
 
-        sol = solve_ivp(f, [0, tf], self.s0, method="RK45")
+        sol = solve_ivp(f, [0, tf], self.s0, method=self.solver)
         return sol.y[0, -1:]
 
 
