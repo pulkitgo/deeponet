@@ -54,11 +54,11 @@ class LTSystem(object):
 
 
 class ODESystem(object):
-    def __init__(self, g, s0, T, step_T, solver="RK45"):
+    def __init__(self, g, s0, T, solver="RK45"):
         self.g = g
         self.s0 = s0
         self.T = T
-        self.step_T = step_T
+#         self.step_T = step_T
         self.solver = solver
 
     @timing
