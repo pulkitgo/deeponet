@@ -269,7 +269,7 @@ def main():
     m = 100
     num_train = 20000
     num_test = 4000
-    lr = 0.001
+    lr = 0.0001
     epochs = 50000
     # batch_size = 1
     # Network
@@ -297,7 +297,7 @@ def main():
     if not os.path.isdir("/content/deeponet/all_results"):
       os.mkdir("/content/deeponet/all_results")
 
-    for layer_width in range(5, 105, 5):
+    for layer_width in range(185, 251, 5):
         branch_sizes = [m, layer_width, layer_width, layer_width, layer_width]
         trunk_sizes = [dim_x, layer_width, layer_width, layer_width, layer_width]
        
