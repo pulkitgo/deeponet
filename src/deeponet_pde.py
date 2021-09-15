@@ -150,9 +150,9 @@ def run(problem, system, space, T, m, nn, net, lr, epochs, num_train, num_test,l
     # np.savez_compressed("/content/deeponet/data_20k/test.npz", X_test0=X_test[0], X_test1=X_test[1], y_test=y_test)
     # return
 
-    d = np.load("/content/deeponet/data_20k/train.npz")
+    d = np.load("/content/deeponet/data_1k/train.npz")
     X_train, y_train = (d["X_train0"], d["X_train1"]), d["y_train"]
-    d = np.load("/content/deeponet/data_20k/test.npz")
+    d = np.load("/content/deeponet/data_1k/test.npz")
     X_test, y_test = (d["X_test0"], d["X_test1"]), d["y_test"]
 
     X_test_trim = trim_to_65535(X_test)[0]
@@ -171,7 +171,7 @@ def run(problem, system, space, T, m, nn, net, lr, epochs, num_train, num_test,l
     checker = dde.callbacks.ModelCheckpoint(
         "model/model.ckpt", save_better_only=True, period=1000
     )
-    losshistory, train_state = model.train(epochs=epochs, callbacks=[checker])      #, batch_size=batch_size)
+    losshistory, train_state = model.train(epochs=epochs, callbacks=[checker], batch_size=32)      #
     # print("Self extracted train {} and test {}".format(train_state.loss_train, train_state.loss_test))
     
     train_losses.append(train_state.loss_train[0])
@@ -267,8 +267,8 @@ def main():
 
     # Hyperparameters
     m = 100
-    num_train = 20000
-    num_test = 4000
+    num_train = 1000
+    num_test = 200
     lr = 0.0001
     epochs = 50000
     # batch_size = 1
@@ -277,27 +277,16 @@ def main():
     activation = "relu"
     initializer = "Glorot normal"  # "He normal" or "Glorot normal"
     dim_x = 1 if problem in ["ode", "lt"] else 2
-    # if nn == "opnn":
-    #     net = dde.maps.DeepONet(
-    #         [m, 40],
-    #         [dim_x, 40],
-    #         activation,
-    #         initializer,
-    #         use_bias=True,
-    #         stacked=False,
-    #     )
-    # elif nn == "fnn":
-    #     net = dde.maps.FNN([m + dim_x] + [100] * 2 + [1], activation, initializer)
-    # elif nn == "resnet":
-    #     net = dde.maps.ResNet(m + dim_x, 1, 128, 2, activation, initializer)
-
+   
     train_losses = []
     test_losses = []
     
     if not os.path.isdir("/content/deeponet/all_results"):
       os.mkdir("/content/deeponet/all_results")
 
-    for layer_width in range(185, 251, 5):
+    for layer_width in range(5, 301, 5):
+        tf.keras.backend.clear_session()
+
         branch_sizes = [m, layer_width, layer_width, layer_width, layer_width]
         trunk_sizes = [dim_x, layer_width, layer_width, layer_width, layer_width]
        
@@ -311,9 +300,7 @@ def main():
         )
 
         run(problem, system, space, T, m, nn, net, lr, epochs, num_train, num_test,
-                layer_width,train_losses,test_losses)
-        
-        print(train_losses)
+                layer_width, train_losses, test_losses)
         
         plt.clf()
         plt.plot(np.array(train_losses))
