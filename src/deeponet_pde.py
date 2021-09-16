@@ -137,7 +137,7 @@ def advd_system(T, npoints_output):
     return ADVDSystem(f, g, T, Nt, npoints_output)
 
 
-def run(problem, system, space, T, m, nn, net, lr, epochs, num_train, num_test,layer_count,train_losses,test_losses):
+def run(problem, system, space, T, m, nn, net, lr, epochs, num_train, num_test,layer_count,train_losses,test_losses, prms):
     # space_test = GRF(1, length_scale=0.1, N=1000, interp="cubic")
 
     # X_train, y_train = system.gen_operator_data(space, m, num_train)
@@ -150,9 +150,9 @@ def run(problem, system, space, T, m, nn, net, lr, epochs, num_train, num_test,l
     # np.savez_compressed("/content/deeponet/data_20k/test.npz", X_test0=X_test[0], X_test1=X_test[1], y_test=y_test)
     # return
 
-    d = np.load("/content/deeponet/data_1k/train.npz")
+    d = np.load("/content/deeponet/data_5k/train.npz")
     X_train, y_train = (d["X_train0"], d["X_train1"]), d["y_train"]
-    d = np.load("/content/deeponet/data_1k/test.npz")
+    d = np.load("/content/deeponet/data_5k/test.npz")
     X_test, y_test = (d["X_test0"], d["X_test1"]), d["y_test"]
 
     X_test_trim = trim_to_65535(X_test)[0]
@@ -171,19 +171,20 @@ def run(problem, system, space, T, m, nn, net, lr, epochs, num_train, num_test,l
     checker = dde.callbacks.ModelCheckpoint(
         "model/model.ckpt", save_better_only=True, period=1000
     )
-    losshistory, train_state = model.train(epochs=epochs, callbacks=[checker], batch_size=32)      #
-    # print("Self extracted train {} and test {}".format(train_state.loss_train, train_state.loss_test))
+    losshistory, train_state = model.train(epochs=epochs, callbacks=[checker])
     
     train_losses.append(train_state.loss_train[0])
     test_losses.append(train_state.loss_test[0])
 
     print("# Parameters:", np.sum([np.prod(v.get_shape().as_list()) for v in tf.compat.v1.trainable_variables()]))
+    prms.append(np.sum([np.prod(v.get_shape().as_list()) for v in tf.compat.v1.trainable_variables()]))
+    
     dde.saveplot(
         losshistory, 
         train_state, 
         issave=True, 
         isplot=True, 
-        output_dir=f'/content/deeponet/all_results/results_{layer_count}'
+        output_dir=f'/content/deeponet/all_results_5k/results_{layer_count}'
     )
 
     model.restore("model/model.ckpt-" + str(train_state.best_step), verbose=1)
@@ -267,11 +268,11 @@ def main():
 
     # Hyperparameters
     m = 100
-    num_train = 1000
-    num_test = 200
+    num_train = 5000
+    num_test = 1000
     lr = 0.0001
     epochs = 50000
-    # batch_size = 1
+
     # Network
     nn = "opnn"
     activation = "relu"
@@ -280,11 +281,11 @@ def main():
    
     train_losses = []
     test_losses = []
-    
-    if not os.path.isdir("/content/deeponet/all_results"):
-      os.mkdir("/content/deeponet/all_results")
+    prms = []
+    if not os.path.isdir("/content/deeponet/all_results_5k"):
+      os.mkdir("/content/deeponet/all_results_5k")
 
-    for layer_width in range(5, 301, 5):
+    for layer_width in range(5, 501, 5):
         tf.keras.backend.clear_session()
 
         branch_sizes = [m, layer_width, layer_width, layer_width, layer_width]
@@ -300,20 +301,21 @@ def main():
         )
 
         run(problem, system, space, T, m, nn, net, lr, epochs, num_train, num_test,
-                layer_width, train_losses, test_losses)
+                layer_width, train_losses, test_losses, prms)
         
         plt.clf()
         plt.plot(np.array(train_losses))
-        plt.savefig('/content/deeponet/all_results/train_final.png')
+        plt.savefig('/content/deeponet/all_results_5k/train_final.png')
         
         plt.clf()
-        plt.plot(test_losses)
-        plt.savefig('/content/deeponet/all_results/test_final.png')
+        plt.plot(np.array(test_losses))
+        plt.savefig('/content/deeponet/all_results_5k/test_final.png')
 
         tf.compat.v1.reset_default_graph()
         tf.keras.backend.clear_session()
         del net
-        # clear_output(wait=True)
 
+    print(prms)
+    
 if __name__ == "__main__":
     main()
