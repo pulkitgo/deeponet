@@ -150,9 +150,9 @@ def run(problem, system, space, T, m, nn, net, lr, epochs, num_train, num_test,l
     # np.savez_compressed("/content/deeponet/data_20k/test.npz", X_test0=X_test[0], X_test1=X_test[1], y_test=y_test)
     # return
 
-    d = np.load("/content/deeponet/data_1k/train.npz")
+    d = np.load("/content/deeponet/data/data_1k/train.npz")
     X_train, y_train = (d["X_train0"], d["X_train1"]), d["y_train"]
-    d = np.load("/content/deeponet/data_1k/test.npz")
+    d = np.load("/content/deeponet/data/data_1k/test.npz")
     X_test, y_test = (d["X_test0"], d["X_test1"]), d["y_test"]
 
     y_train += np.random.normal(loc=0.0, scale=0.01, size=y_train.shape)
