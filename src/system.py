@@ -62,13 +62,17 @@ class ODESystem(object):
         self.solver = solver
 
     @timing
-    def gen_operator_data(self, space, m, num):
+    def gen_operator_data(self, space, m, num, noise=False):
         print("Generating operator data...", flush=True)
         features = space.random(num)
         sensors = np.linspace(0, self.T, num=m)[:, None]
         sensor_values = space.eval_u(features, sensors)
         x = self.T * np.random.rand(num)[:, None]
         y = self.eval_s_space(space, features, x)
+        
+        if noise:
+            y += np.random.randn(y.shape)
+        
         return [sensor_values, x], y
     #sensor_values is the input to branch net, x is the input to trunk net and y is the final output.
     
