@@ -14,7 +14,7 @@ from spaces import FinitePowerSeries, FiniteChebyshev, GRF
 from system import LTSystem, ODESystem, DRSystem, CVCSystem, ADVDSystem
 from utils import merge_values, trim_to_65535, mean_squared_error_outlier, safe_test
 
-
+np.random.seed(0)
 def test_u_lt(nn, system, T, m, model, data, u, fname):
     """Test Legendre transform"""
     sensors = np.linspace(-1, 1, num=m)
@@ -150,10 +150,12 @@ def run(problem, system, space, T, m, nn, net, lr, epochs, num_train, num_test,l
     # np.savez_compressed("/content/deeponet/data_20k/test.npz", X_test0=X_test[0], X_test1=X_test[1], y_test=y_test)
     # return
 
-    d = np.load("/content/deeponet/data_5k/train.npz")
+    d = np.load("/content/deeponet/data_1k/train.npz")
     X_train, y_train = (d["X_train0"], d["X_train1"]), d["y_train"]
-    d = np.load("/content/deeponet/data_5k/test.npz")
+    d = np.load("/content/deeponet/data_1k/test.npz")
     X_test, y_test = (d["X_test0"], d["X_test1"]), d["y_test"]
+
+    y_train += np.random.normal(loc=0.0, scale=0.01, size=y_train.shape)
 
     X_test_trim = trim_to_65535(X_test)[0]
     y_test_trim = trim_to_65535(y_test)[0]
@@ -184,7 +186,7 @@ def run(problem, system, space, T, m, nn, net, lr, epochs, num_train, num_test,l
         train_state, 
         issave=True, 
         isplot=True, 
-        output_dir=f'/content/deeponet/all_results_5k/results_{layer_count}'
+        output_dir=f'/content/deeponet/noise_results_1k_01/results_{layer_count}'
     )
 
     model.restore("model/model.ckpt-" + str(train_state.best_step), verbose=1)
@@ -268,8 +270,8 @@ def main():
 
     # Hyperparameters
     m = 100
-    num_train = 5000
-    num_test = 1000
+    num_train = 1000
+    num_test = 200
     lr = 0.0001
     epochs = 50000
 
@@ -282,8 +284,8 @@ def main():
     train_losses = []
     test_losses = []
     prms = []
-    if not os.path.isdir("/content/deeponet/all_results_5k"):
-      os.mkdir("/content/deeponet/all_results_5k")
+    if not os.path.isdir("/content/deeponet/noise_results_1k_01"):
+      os.mkdir("/content/deeponet/noise_results_1k_01")
 
     for layer_width in range(5, 501, 5):
         tf.keras.backend.clear_session()
@@ -305,11 +307,11 @@ def main():
         
         plt.clf()
         plt.plot(np.array(train_losses))
-        plt.savefig('/content/deeponet/all_results_5k/train_final.png')
+        plt.savefig('/content/deeponet/noise_results_1k_01/train_final.png')
         
         plt.clf()
         plt.plot(np.array(test_losses))
-        plt.savefig('/content/deeponet/all_results_5k/test_final.png')
+        plt.savefig('/content/deeponet/noise_results_1k_01/test_final.png')
 
         tf.compat.v1.reset_default_graph()
         tf.keras.backend.clear_session()
