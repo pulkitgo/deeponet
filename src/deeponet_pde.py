@@ -155,7 +155,7 @@ def run(problem, system, space, T, m, nn, net, lr, epochs, num_train, num_test,l
     d = np.load("/content/deeponet/data/data_1k/test.npz")
     X_test, y_test = (d["X_test0"], d["X_test1"]), d["y_test"]
 
-    y_train += np.random.normal(loc=0.0, scale=0.01, size=y_train.shape)
+    y_train += np.random.normal(loc=0.0, scale=1.0, size=y_train.shape)
 
     X_test_trim = trim_to_65535(X_test)[0]
     y_test_trim = trim_to_65535(y_test)[0]
@@ -186,7 +186,7 @@ def run(problem, system, space, T, m, nn, net, lr, epochs, num_train, num_test,l
         train_state, 
         issave=True, 
         isplot=True, 
-        output_dir=f'/content/deeponet/noise_results_1k_01/results_{layer_count}'
+        output_dir=f'/content/drive/MyDrive/1k/noise_results_1k_10/results_{layer_count}'
     )
 
     model.restore("model/model.ckpt-" + str(train_state.best_step), verbose=1)
@@ -284,8 +284,8 @@ def main():
     train_losses = []
     test_losses = []
     prms = []
-    if not os.path.isdir("/content/deeponet/noise_results_1k_01"):
-      os.mkdir("/content/deeponet/noise_results_1k_01")
+    if not os.path.isdir("/content/drive/MyDrive/1k/noise_results_1k_10"):
+      os.mkdir("/content/drive/MyDrive/1k/noise_results_1k_10")
 
     for layer_width in range(5, 501, 5):
         tf.keras.backend.clear_session()
@@ -307,11 +307,11 @@ def main():
         
         plt.clf()
         plt.plot(np.array(train_losses))
-        plt.savefig('/content/deeponet/noise_results_1k_01/train_final.png')
+        plt.savefig('/content/drive/MyDrive/1k/noise_results_1k_10/train_final.png')
         
         plt.clf()
         plt.plot(np.array(test_losses))
-        plt.savefig('/content/deeponet/noise_results_1k_01/test_final.png')
+        plt.savefig('/content/drive/MyDrive/1k/noise_results_1k_10/test_final.png')
 
         tf.compat.v1.reset_default_graph()
         tf.keras.backend.clear_session()
