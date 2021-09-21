@@ -88,6 +88,7 @@ class ODESystem(object):
 
         p = ProcessPool(nodes=config.processes)
         res = p.map(f, features, x)
+        print(f"Final evaluated s space {np.array(list(res)).shape}")
         return np.array(list(res))
 
     def eval_s_func(self, u, x):
