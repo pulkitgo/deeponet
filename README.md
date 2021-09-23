@@ -8,6 +8,8 @@ import tensorflow.compat.v1 as tf
 tf.disable_eager_execution()
 ```
 
+# Original README
+
 # DeepONet: Learning nonlinear operators
 
 [![DOI](https://zenodo.org/badge/260069304.svg)](https://zenodo.org/badge/latestdoi/260069304)
