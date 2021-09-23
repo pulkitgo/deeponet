@@ -1,3 +1,13 @@
+For running on Google Colab, append the following cell  before running the code:
+
+```
+%tensorflow_version 2.x
+!pip install pathos
+!export DDEBACKEND=tensorflow.compat.v1
+import tensorflow.compat.v1 as tf
+tf.disable_eager_execution()
+```
+
 # DeepONet: Learning nonlinear operators
 
 [![DOI](https://zenodo.org/badge/260069304.svg)](https://zenodo.org/badge/latestdoi/260069304)
