@@ -150,12 +150,12 @@ def run(problem, system, space, T, m, nn, net, lr, epochs, num_train, num_test,l
     # np.savez_compressed("/content/deeponet/data_20k/test.npz", X_test0=X_test[0], X_test1=X_test[1], y_test=y_test)
     # return
 
-    d = np.load("/content/deeponet/data/data_5k/train.npz")
+    d = np.load("/content/deeponet/data/data_1k/train.npz")
     X_train, y_train = (d["X_train0"], d["X_train1"]), d["y_train"]
-    d = np.load("/content/deeponet/data/data_5k/test.npz")
+    d = np.load("/content/deeponet/data/data_1k/test.npz")
     X_test, y_test = (d["X_test0"], d["X_test1"]), d["y_test"]
 
-    y_train += np.random.normal(loc=0.0, scale=0.001, size=y_train.shape)
+    # y_train += np.random.normal(loc=0.0, scale=0.001, size=y_train.shape)
 
     X_test_trim = trim_to_65535(X_test)[0]
     y_test_trim = trim_to_65535(y_test)[0]
@@ -173,7 +173,7 @@ def run(problem, system, space, T, m, nn, net, lr, epochs, num_train, num_test,l
     checker = dde.callbacks.ModelCheckpoint(
         "model/model.ckpt", save_better_only=True, period=1000
     )
-    losshistory, train_state = model.train(epochs=epochs, callbacks=[checker], batch_size=32)
+    losshistory, train_state = model.train(epochs=epochs, callbacks=[checker])#, batch_size=32)
     
     train_losses.append(train_state.loss_train[0])
     test_losses.append(train_state.loss_test[0])
@@ -186,7 +186,7 @@ def run(problem, system, space, T, m, nn, net, lr, epochs, num_train, num_test,l
         train_state, 
         issave=True, 
         isplot=True, 
-        output_dir=f'/content/drive/MyDrive/5k/noise_results_5k_001_sgd/results_{layer_count}'
+        output_dir=f'/content/drive/MyDrive/Pulkit/DeepONet/DON_Pendulum/Results/1k/abs_activation_gd/results_{layer_count}'
     )
 
     model.restore("model/model.ckpt-" + str(train_state.best_step), verbose=1)
@@ -277,15 +277,15 @@ def main():
 
     # Network
     nn = "opnn"
-    activation = "relu"
+    activation = "abs" #relu
     initializer = "Glorot normal"  # "He normal" or "Glorot normal"
     dim_x = 1 if problem in ["ode", "lt"] else 2
    
     train_losses = []
     test_losses = []
     prms = []
-    if not os.path.isdir("/content/drive/MyDrive/5k/noise_results_5k_001_sgd"):
-      os.mkdir("/content/drive/MyDrive/5k/noise_results_5k_001_sgd")
+    # if not os.path.isdir("/content/drive/MyDrive/5k/noise_results_5k_001_sgd"):
+    #   os.mkdir("/content/drive/MyDrive/5k/noise_results_5k_001_sgd")
 
     for layer_width in range(5, 501, 5):
         tf.keras.backend.clear_session()
@@ -307,11 +307,11 @@ def main():
         
         plt.clf()
         plt.plot(np.array(train_losses))
-        plt.savefig('/content/drive/MyDrive/5k/noise_results_5k_001_sgd/train_final.png')
+        plt.savefig('/content/drive/MyDrive/Pulkit/DeepONet/DON_Pendulum/Results/1k/abs_activation_gd/train_final.png')
         
         plt.clf()
         plt.plot(np.array(test_losses))
-        plt.savefig('/content/drive/MyDrive/5k/noise_results_5k_001_sgd/test_final.png')
+        plt.savefig('/content/drive/MyDrive/Pulkit/DeepONet/DON_Pendulum/Results/1k/abs_activation_gd/test_final.png')
 
         tf.compat.v1.reset_default_graph()
         tf.keras.backend.clear_session()
