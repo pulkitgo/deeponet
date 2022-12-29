@@ -178,8 +178,9 @@ def run(problem, system, space, T, m, nn, net, lr, epochs, num_train, num_test,l
     train_losses.append(train_state.loss_train[0])
     test_losses.append(train_state.loss_test[0])
 
-    print("# Parameters:", np.sum([np.prod(v.get_shape().as_list()) for v in tf.compat.v1.trainable_variables()]))
+    # print("# Parameters:", np.sum([np.prod(v.get_shape().as_list()) for v in tf.compat.v1.trainable_variables()]))
     prms.append(np.sum([np.prod(v.get_shape().as_list()) for v in tf.compat.v1.trainable_variables()]))
+    print("Parameters:", tf.compat.v1.trainable_variables())
     
     dde.saveplot(
         losshistory, 
@@ -273,7 +274,7 @@ def main():
     num_train = 5000
     num_test = 1000
     lr = 0.0001
-    epochs = 50000
+    epochs = 1
 
     # Network
     nn = "opnn"
@@ -287,31 +288,31 @@ def main():
     # if not os.path.isdir("/content/drive/MyDrive/5k/noise_results_5k_001_sgd"):
     #   os.mkdir("/content/drive/MyDrive/5k/noise_results_5k_001_sgd")
 
-    for layer_width in range(5, 501, 5):
+    for layer_width in range(5, 6, 5):
         tf.keras.backend.clear_session()
 
-        branch_sizes = [m, layer_width, layer_width, layer_width, layer_width]
-        trunk_sizes = [dim_x, layer_width, layer_width, layer_width, layer_width]
+        branch_sizes = [m, layer_width, layer_width]
+        trunk_sizes = [dim_x, layer_width, layer_width]
        
         net = dde.maps.DeepONet(
             branch_sizes,
             trunk_sizes,
             activation,
             initializer,
-            use_bias=True,
+            use_bias=False,
             stacked=False,
         )
 
         run(problem, system, space, T, m, nn, net, lr, epochs, num_train, num_test,
                 layer_width, train_losses, test_losses, prms)
         
-        plt.clf()
-        plt.plot(np.array(train_losses))
-        plt.savefig('/content/drive/MyDrive/Pulkit/DeepONet/DON_Pendulum/Results/1k/abs_activation_gd/train_final.png')
+        # plt.clf()
+        # plt.plot(np.array(train_losses))
+        # plt.savefig('/content/drive/MyDrive/Pulkit/DeepONet/DON_Pendulum/Results/1k/abs_activation_gd/train_final.png')
         
-        plt.clf()
-        plt.plot(np.array(test_losses))
-        plt.savefig('/content/drive/MyDrive/Pulkit/DeepONet/DON_Pendulum/Results/1k/abs_activation_gd/test_final.png')
+        # plt.clf()
+        # plt.plot(np.array(test_losses))
+        # plt.savefig('/content/drive/MyDrive/Pulkit/DeepONet/DON_Pendulum/Results/1k/abs_activation_gd/test_final.png')
 
         tf.compat.v1.reset_default_graph()
         tf.keras.backend.clear_session()
