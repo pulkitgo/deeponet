@@ -137,22 +137,23 @@ def advd_system(T, npoints_output):
     return ADVDSystem(f, g, T, Nt, npoints_output)
 
 
-def run(problem, system, space, T, m, nn, net, lr, epochs, num_train, num_test,layer_count,train_losses,test_losses, prms):
+def run(problem, system, space, T, m, nn, net, lr, epochs, num_train, num_test, layer_count, train_losses, test_losses, prms):
     # space_test = GRF(1, length_scale=0.1, N=1000, interp="cubic")
 
-    # X_train, y_train = system.gen_operator_data(space, m, num_train)
-    # X_test, y_test = system.gen_operator_data(space, m, num_test)
-    # # if nn != "opnn":
-    # #     X_train = merge_values(X_train)
-    # #     X_test = merge_values(X_test)
+    X_train, y_train = system.gen_operator_data(space, m, num_train)
+    X_test, y_test = system.gen_operator_data(space, m, num_test)
+    if nn != "opnn":
+        X_train = merge_values(X_train)
+        X_test = merge_values(X_test)
 
-    # np.savez_compressed("/content/deeponet/data_20k/train.npz", X_train0=X_train[0], X_train1=X_train[1], y_train=y_train)
-    # np.savez_compressed("/content/deeponet/data_20k/test.npz", X_test0=X_test[0], X_test1=X_test[1], y_test=y_test)
-    # return
+    os.mkdir(f"/content/deeponet/data_new/data_{str(num_train//1000)}k")
+    np.savez_compressed(f"/content/deeponet/data_new/data_{str(num_train//1000)}k/train.npz", X_train0=X_train[0], X_train1=X_train[1], y_train=y_train)
+    np.savez_compressed(f"/content/deeponet/data_new/data_{str(num_train//1000)}k/test.npz", X_test0=X_test[0], X_test1=X_test[1], y_test=y_test)
+    return
 
-    d = np.load("/content/deeponet/data/data_1k/train.npz")
+    d = np.load("/content/deeponet/data/data_5k/train.npz")
     X_train, y_train = (d["X_train0"], d["X_train1"]), d["y_train"]
-    d = np.load("/content/deeponet/data/data_1k/test.npz")
+    d = np.load("/content/deeponet/data/data_5k/test.npz")
     X_test, y_test = (d["X_test0"], d["X_test1"]), d["y_test"]
 
     # y_train += np.random.normal(loc=0.0, scale=0.001, size=y_train.shape)
@@ -173,7 +174,7 @@ def run(problem, system, space, T, m, nn, net, lr, epochs, num_train, num_test,l
     checker = dde.callbacks.ModelCheckpoint(
         "model/model.ckpt", save_better_only=True, period=1000
     )
-    losshistory, train_state = model.train(epochs=epochs, callbacks=[checker])#, batch_size=32)
+    losshistory, train_state = model.train(epochs=epochs, callbacks=[checker], batch_size=32)
     
     train_losses.append(train_state.loss_train[0])
     test_losses.append(train_state.loss_test[0])
@@ -187,7 +188,7 @@ def run(problem, system, space, T, m, nn, net, lr, epochs, num_train, num_test,l
         train_state, 
         issave=True, 
         isplot=True, 
-        output_dir=f'/content/drive/MyDrive/Pulkit/DeepONet/DON_Pendulum/Results/1k/abs_activation_gd/results_{layer_count}'
+        output_dir=f'/content/drive/MyDrive/DeepONet/5k/results_{layer_count}'
     )
 
     model.restore("model/model.ckpt-" + str(train_state.best_step), verbose=1)
@@ -271,14 +272,14 @@ def main():
 
     # Hyperparameters
     m = 100
-    num_train = 5000
-    num_test = 1000
+    num_train = 50000
+    num_test = int(0.2 * num_train)
     lr = 0.0001
-    epochs = 1
+    epochs = 50000
 
     # Network
     nn = "opnn"
-    activation = "abs" #relu
+    activation = "relu" #relu
     initializer = "Glorot normal"  # "He normal" or "Glorot normal"
     dim_x = 1 if problem in ["ode", "lt"] else 2
    
@@ -291,8 +292,8 @@ def main():
     for layer_width in range(5, 6, 5):
         tf.keras.backend.clear_session()
 
-        branch_sizes = [m, layer_width, layer_width]
-        trunk_sizes = [dim_x, layer_width, layer_width]
+        branch_sizes = [m, layer_width, layer_width, layer_width]
+        trunk_sizes = [dim_x, layer_width, layer_width, layer_width]
        
         net = dde.maps.DeepONet(
             branch_sizes,
